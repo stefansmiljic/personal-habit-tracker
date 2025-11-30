@@ -1,0 +1,6 @@
+@habit_tracker_backend_HostAddress = http://localhost:5159
+
+GET {{habit_tracker_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
