@@ -1,5 +1,3 @@
-using Microsoft.IdentityModel.Tokens;
-
 public class HabitService : IHabitService
 {
     private IHabitRepository _habitRepository;
@@ -13,29 +11,10 @@ public class HabitService : IHabitService
     {
         if (string.IsNullOrEmpty(dto.Name))
             throw new Exception();
-
-        var habit = new Habit()
-        {
-            Id = Guid.NewGuid(),
-            Name = dto.Name,
-            Description = dto.Description,
-            GoalType = dto.GoalType,
-            CreatedAt = DateTime.Now,
-            IsActive = true,
-        };
-
-        var habitDto = new HabitDto
-        {
-            Id = habit.Id,
-            Name = habit.Name,
-            Description = habit.Description,
-            IsActive = habit.IsActive,
-            GoalType = habit.GoalType,
-            CreatedAt = habit.CreatedAt,
-        };
+        var habit = HabitMapper.ToEntity(dto);
 
         await _habitRepository.AddHabit(habit);
-        return habitDto;
+        return HabitMapper.ToDto(habit);
     }
 
     public async Task DeleteHabit(Guid id) => await _habitRepository.DeleteHabit(id);
@@ -43,57 +22,20 @@ public class HabitService : IHabitService
     public async Task<List<HabitDto>> GetAllHabits()
     {
         var habits = await _habitRepository.GetAllHabits();
-        return habits
-            .Select(habit => new HabitDto
-            {
-                Id = habit.Id,
-                Name = habit.Name,
-                Description = habit.Description,
-                IsActive = habit.IsActive,
-                GoalType = habit.GoalType,
-                CreatedAt = habit.CreatedAt,
-            })
-            .ToList();
+        return HabitMapper.ToDtoList(habits);
     }
 
     public async Task<HabitDto?> GetHabitById(Guid id)
     {
         var habit = await _habitRepository.GetHabitById(id) ?? throw new Exception();
-        var habitDto = new HabitDto
-        {
-            Id = habit.Id,
-            Name = habit.Name,
-            Description = habit.Description,
-            IsActive = habit.IsActive,
-            GoalType = habit.GoalType,
-            CreatedAt = habit.CreatedAt,
-        };
-        return habitDto;
+        return HabitMapper.ToDto(habit);
     }
 
     public async Task<HabitDto?> UpdateHabit(Guid id, UpdateHabitDto dto)
     {
         var habit = await _habitRepository.GetHabitById(id) ?? throw new Exception();
-        if (!string.IsNullOrEmpty(dto.Name))
-            habit.Name = dto.Name;
-        if (dto.Description != null)
-            habit.Description = dto.Description;
-        if (dto.IsActive != null)
-            habit.IsActive = dto.IsActive.Value;
-        if (dto.GoalType != null)
-            habit.GoalType = dto.GoalType.Value;
-
+        HabitMapper.ApplyUpdates(habit, dto);
         await _habitRepository.UpdateHabit(habit);
-
-        var habitDto = new HabitDto
-        {
-            Id = habit.Id,
-            Name = habit.Name,
-            Description = habit.Description,
-            IsActive = habit.IsActive,
-            GoalType = habit.GoalType,
-            CreatedAt = habit.CreatedAt,
-        };
-        return habitDto;
+        return HabitMapper.ToDto(habit);
     }
 }
