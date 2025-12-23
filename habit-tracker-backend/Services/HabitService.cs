@@ -10,7 +10,7 @@ public class HabitService : IHabitService
     public async Task<HabitDto> AddHabit(CreateHabitDto dto)
     {
         if (string.IsNullOrEmpty(dto.Name))
-            throw new Exception();
+            throw new Exception("Name is empty");
         var habit = HabitMapper.ToEntity(dto);
 
         await _habitRepository.AddHabit(habit);

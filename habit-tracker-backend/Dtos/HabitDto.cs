@@ -1,4 +1,4 @@
-public class HabitDto
+public record HabitDto
 {
     public Guid Id { get; set; }
     public required String Name { get; set; }

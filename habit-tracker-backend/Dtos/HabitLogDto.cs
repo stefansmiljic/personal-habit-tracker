@@ -1,4 +1,4 @@
-public class HabitLogDto
+public record HabitLogDto
 {
     public Guid Id { get; set; }
     public Guid HabitId { get; set; }
